@@ -7,11 +7,11 @@ import matplotlib.pyplot as plt
 import networkx as nx
 
 def draw_park(edges, osks, exits):
-    G = nx.Graph()
+    G = nx.MultiGraph()
     for edge in edges:
         node1, node2, weight = edge
         G.add_edge(node1, node2, weight=weight)
-
+    print(G.size(), "rozmiar przy wizualizacji")
     pos = nx.spring_layout(G)
     node_colors = ["skyblue" if node not in osks and node not in exits else "pink" if node in osks else "lightgreen" for node in G.nodes()]
     nx.draw(G, pos, with_labels=True, node_size=700, node_color=node_colors, font_size=10, font_weight="bold")
@@ -36,11 +36,28 @@ def draw_park(edges, osks, exits):
 # solver.check_solution_accuracy(matrix, vector, solution)
 
 # H1 rozmiar macierzy - długość alejek, liczba skryżowań; duża gęstość macierzy - skrzyżowania z wieloma alejkami
-random_graph = ParkGraph.generate_random_graph(num_intersections=10, num_osks=1, 
-                                               num_exits=3, max_alley_length=5, num_alleys=12)
 
-# matrix, vector = random_graph.create_matrix_form()
-# matrix.print_matrix()
-# matrix.display()
+# przykładowy park symetryczny:
+# alleys = [[1,2,2], [1,5,2], [2,3,1], [5,4,1], [3,4,1], [2,6,1], [5,6,1]]
+# random_graph = ParkGraph(alleys, intersections=6, osks=[6], exits=[1])
+
+alleys = [[1,3,1],[1,2,1],[1,2,1],[2,4,1]]
+random_graph = ParkGraph(alleys, intersections=4, osks=[3], exits=[4])
+
+# random_graph = ParkGraph.generate_random_graph(num_intersections=5, num_osks=1, 
+#                                                num_exits=1, max_alley_length=1, num_alleys=20)
+
+matrix, vector = random_graph.create_matrix_form()
+matrix.display()
 # print(vector)
-# draw_park(random_graph.alleys)
+# solver = GaussianElimination(matrix, vector)
+# solution = solver.solve()
+# print("Solution gaussian elimination:")
+# for i, val in enumerate(solution):
+#     print(f"x{i + 1} =", val)
+# solver.check_solution_accuracy(matrix, vector, solution)
+
+size = matrix.size()
+sparsity = matrix.sparsity()
+print(size, sparsity)
+draw_park(random_graph.alleys, random_graph.exits, random_graph.osks)

@@ -19,11 +19,11 @@ class GaussSeidelSolver(SolutionChecker):
                 for j in range(n):
                     if j != i:
                         val = self.matrix.get_value(i, j)
-                        if val is not 0:
+                        if val != 0:
                             row_sum += val * x_new[j]
                 x_new[i] -= row_sum
                 val = self.matrix.get_value(i, i)
-                if val is not 0:
+                if val != 0:
                     x_new[i] /= val
 
                 diff = abs(x_new[i] - x[i])
