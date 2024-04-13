@@ -1,4 +1,3 @@
-import random
 class Matrix:
     def __init__(self):
         self.matrix = {}
@@ -25,19 +24,6 @@ class Matrix:
                     self.set_value(i, j, 1)
                 elif abs(i - j) == 1 and i != 0 and i != n - 1:
                     self.set_value(i, j, -0.5)
-
-    # @classmethod
-    # def generate_random_matrix(cls, size):
-    #     matrix = cls()
-    #     random_number = random.randint(1, size)
-    #     for i in range(size):
-    #         for j in range(size):
-    #             if i == j:
-    #                 matrix.set_value(i, j, 1)
-    #             else:
-    #                 matrix.set_value(i, j, -1 / 5)
-    #     return matrix
-    
 
     def print_matrix(self):
         print(self.matrix)

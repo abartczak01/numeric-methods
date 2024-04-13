@@ -2,7 +2,7 @@ from Matrix import Matrix
 import random
 import networkx as nx
 
-class Graph:
+class ParkGraph:
     def __init__(self, alleys, intersections, osks, exits):
         self.alleys = alleys
         self.intersections = intersections
@@ -49,7 +49,6 @@ class Graph:
     def create_matrix_form(self):
         matrix_form = Matrix()
         vector = []
-        print('--------', self.graph)
         for node, neighbours in self.graph.items():
             row_number = node - 1
             column_number = row_number
@@ -69,41 +68,43 @@ class Graph:
         return matrix_form, vector
 
     @staticmethod
-    def generate_initial_intersection_connections(n, edges_num=None):
+    def generate_initial_intersection_connections(intersections_num, edges_num=None):
         G = nx.Graph()
-        G.add_nodes_from(range(1, n + 1))
+        G.add_nodes_from(range(1, intersections_num + 1))
 
         # Tworzenie krawędzi
         if edges_num is None:
-            for i in range(1, n + 1):
+            for i in range(1, intersections_num + 1):
                 random_node = random.randint(1, i)
                 G.add_edge(i + 1, random_node)
         else:
             # Tworzenie dokładnie edges_num krawędzi
-            if edges_num > n * (n - 1) // 2:  # maksymalna liczba krawędzi
+            if edges_num > intersections_num * (intersections_num - 1) // 2:  # maks liczba krawędzi
                 raise ValueError("Liczba krawędzi przekracza maksymalną możliwą liczbę dla grafu pełnego.")
             edges_count = 0
             while edges_count < edges_num:
-                node1 = random.randint(1, n)
-                node2 = random.randint(1, n)
+                node1 = random.randint(1, intersections_num)
+                node2 = random.randint(1, intersections_num)
                 if node1 != node2 and not G.has_edge(node1, node2):
                     G.add_edge(node1, node2)
                     edges_count += 1
 
-        # Sprawdzenie, czy graf jest połączony
+        # sprawdzenie spójności grafu 
         if nx.is_connected(G):
+            print("graf spójny")
             return G
         else:
-            components = list(nx.connected_components(G))
+            print("graf niespójny")
+            components = list(nx.connected_components(G))  # Convert to list
             while len(components) > 1:
-                node1 = random.choice(components[0])
-                node2 = random.choice(components[1])
+                node1 = random.choice(list(components[0]))  # Convert to list
+                node2 = random.choice(list(components[1]))  # Convert to list
                 G.add_edge(node1, node2)
-                components = list(nx.connected_components(G))
+                components = list(nx.connected_components(G))  # Convert to list
             return G
 
     @classmethod
-    def generate_random_graph(cls, num_intersections, num_osks, num_exits, max_alley_length, num_alleys=None):
+    def generate_random_graph(cls, num_intersections, num_osks, num_exits, max_alley_length=5, num_alleys=None):
         osks = random.sample(range(1, num_intersections + 1), num_osks)
         exits = random.sample(set(range(1, num_intersections + 1)) - set(osks), num_exits)
         connected_intersections = cls.generate_initial_intersection_connections(num_intersections, num_alleys)
