@@ -9,6 +9,7 @@ class Graph:
         self.osks = osks
         self.exits = exits
         self.graph = {}
+        self.create_graph()
 
     def create_graph(self):
         self.set_main_intersections()
@@ -48,6 +49,7 @@ class Graph:
     def create_matrix_form(self):
         matrix_form = Matrix()
         vector = []
+        print('--------', self.graph)
         for node, neighbours in self.graph.items():
             row_number = node - 1
             column_number = row_number
@@ -64,17 +66,31 @@ class Graph:
                 for neighbour in neighbours:
                     column_number = neighbour - 1
                     matrix_form.set_value(row_number, column_number, prob_next_location)
-
         return matrix_form, vector
 
     @staticmethod
-    def generate_initial_intersection_connections(n):
+    def generate_initial_intersection_connections(n, edges_num=None):
         G = nx.Graph()
         G.add_nodes_from(range(1, n + 1))
-        for i in range(1, n):
-            random_node = random.randint(1, i)
-            G.add_edge(i + 1, random_node)
 
+        # Tworzenie krawędzi
+        if edges_num is None:
+            for i in range(1, n + 1):
+                random_node = random.randint(1, i)
+                G.add_edge(i + 1, random_node)
+        else:
+            # Tworzenie dokładnie edges_num krawędzi
+            if edges_num > n * (n - 1) // 2:  # maksymalna liczba krawędzi
+                raise ValueError("Liczba krawędzi przekracza maksymalną możliwą liczbę dla grafu pełnego.")
+            edges_count = 0
+            while edges_count < edges_num:
+                node1 = random.randint(1, n)
+                node2 = random.randint(1, n)
+                if node1 != node2 and not G.has_edge(node1, node2):
+                    G.add_edge(node1, node2)
+                    edges_count += 1
+
+        # Sprawdzenie, czy graf jest połączony
         if nx.is_connected(G):
             return G
         else:
@@ -87,23 +103,22 @@ class Graph:
             return G
 
     @classmethod
-    def generate_random_graph(cls, num_intersections, num_osks, num_exits, max_alley_length):
-        intersections = num_intersections
+    def generate_random_graph(cls, num_intersections, num_osks, num_exits, max_alley_length, num_alleys=None):
         osks = random.sample(range(1, num_intersections + 1), num_osks)
         exits = random.sample(set(range(1, num_intersections + 1)) - set(osks), num_exits)
-        connected_intersections = cls.generate_initial_intersection_connections(num_intersections)
+        connected_intersections = cls.generate_initial_intersection_connections(num_intersections, num_alleys)
         alleys = []
         for connection in connected_intersections.edges():
             alley_length = random.randint(1, max_alley_length)
             node1, node2 = connection
             alleys.append([node1, node2, alley_length])
-        return cls(alleys, intersections, osks, exits)
+        print("alleys:", alleys)
+        print("osks:", osks)
+        print("exits:", exits)
+        print("intersections' number:", num_intersections)
+        return cls(alleys, num_intersections, osks, exits)
 
     def display(self):
         print(self.graph)
 
 
-# Example usage:
-random_graph = Graph.generate_random_graph(5, 1, 1, 5)
-random_graph.create_graph()
-random_graph.display()
