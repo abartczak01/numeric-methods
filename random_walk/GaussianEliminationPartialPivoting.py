@@ -17,6 +17,7 @@ class GaussianEliminationPartialPivoting(SolutionChecker):
                     max_row = k
                     max_val = val
             if max_row != i:
+                print("Zmiana pivota: Wiersz", i, "zamieniony z wierszem", max_row)
                 for j in range(i, n):
                     temp = self.matrix.get_value(i, j)
                     self.matrix.set_value(i, j, self.matrix.get_value(max_row, j))
@@ -45,3 +46,4 @@ class GaussianEliminationPartialPivoting(SolutionChecker):
         self.forward_elimination()
         self.backward_substitution()
         return self.solution
+    

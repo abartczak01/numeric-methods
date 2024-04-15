@@ -10,10 +10,10 @@ class SolutionChecker:
             rhs = vector[i]
             residual_errors.append(abs(lhs - rhs))
 
-        max_residual_error = max(residual_errors)
+        # max_residual_error = max(residual_errors)
         print("residual errors:", residual_errors)
 
-        if max_residual_error <= threshold:
-            print("Solutions are accurate within the specified threshold.")
-        else:
-            print("Solutions are not accurate within the specified threshold. Maximum residual error:", max_residual_error)
+        # if max_residual_error <= threshold:
+        #     print("Solutions are accurate within the specified threshold.")
+        # else:
+        #     print("Solutions are not accurate within the specified threshold. Maximum residual error:", max_residual_error)

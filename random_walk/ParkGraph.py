@@ -46,8 +46,24 @@ class ParkGraph:
                     self.graph[new_intersection].append(v)
                     self.graph[v].append(new_intersection)
 
+    def random_row_swaps(self, n):
+        matrix_form, vector = self.create_matrix_form()
+        rows = matrix_form.size()[0]
+
+        for _ in range(n):
+            row1, row2 = random.sample(range(rows), 2)
+            for j in range(matrix_form.size()[1]):
+                temp = matrix_form.get_value(row1, j)
+                matrix_form.set_value(row1, j, matrix_form.get_value(row2, j))
+                matrix_form.set_value(row2, j, temp)
+
+            # Swap elements in the vector
+            vector[row1], vector[row2] = vector[row2], vector[row1]
+
+        return matrix_form, vector
+
     def create_matrix_form(self):
-        print(self.graph)
+        # print(self.graph)
         matrix_form = Matrix()
         vector = []
         for node, neighbours in self.graph.items():
@@ -76,21 +92,19 @@ class ParkGraph:
     def generate_initial_intersection_connections(intersections_num, edges_num=None, multi_edges=True):
         G = nx.MultiGraph()
         G.add_nodes_from(range(1, intersections_num + 1))
-        print(edges_num)
-        # Creating edges
+
         for _ in range(edges_num):
             node1 = random.randint(1, intersections_num)
             node2 = random.randint(1, intersections_num)
-            if (node1 != node2 or multi_edges) and (not G.has_edge(node1, node2) or multi_edges):
-                G.add_edge(node1, node2)
+            # avoiding loops
+            while node1 == node2:
+                node2 = random.randint(1, intersections_num)
+            G.add_edge(node1, node2)
 
         # Checking graph connectivity
         if nx.is_connected(G):
-            print("Connected graph")
-            print(G.size())
             return G
         else:
-            print("Disconnected graph")
             components = list(nx.connected_components(G))
             while len(components) > 1:
                 node1 = random.choice(list(components[0]))
@@ -100,19 +114,15 @@ class ParkGraph:
             return G
 
     @classmethod
-    def generate_random_graph(cls, num_intersections, num_osks, num_exits, max_alley_length=5, num_alleys=None):
+    def generate_random_graph(cls, num_intersections, num_osks, num_exits, alley_length_range=[1,5], num_alleys=None):
         osks = random.sample(range(1, num_intersections + 1), num_osks)
         exits = random.sample(set(range(1, num_intersections + 1)) - set(osks), num_exits)
         connected_intersections = cls.generate_initial_intersection_connections(num_intersections, edges_num=num_alleys)
         alleys = []
         for connection in connected_intersections.edges():
-            alley_length = random.randint(1, max_alley_length)
+            alley_length = random.randint(alley_length_range[0], alley_length_range[1])
             node1, node2 = connection
             alleys.append([node1, node2, alley_length])
-        print("alleys:", alleys)
-        print("osks:", osks)
-        print("exits:", exits)
-        print("intersections' number:", num_intersections)
         return cls(alleys, num_intersections, osks, exits)
 
     def display(self):

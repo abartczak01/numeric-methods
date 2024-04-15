@@ -1,3 +1,4 @@
+import math
 class Matrix:
     def __init__(self):
         self.matrix = {}
@@ -39,5 +40,34 @@ class Matrix:
                 elif abs(i - j) == 1 and i != 0 and i != n - 1:
                     self.set_value(i, j, -0.5)
 
+    def is_diagonally_dominant(self):
+        rows, cols = self.size()
+        for i in range(rows):
+            diagonal_value = float(self.get_value(i, i))
+            sum_of_abs_non_diagonal = sum(abs(self.get_value(i, j)) for j in range(cols) if j != i)
+            if diagonal_value < sum_of_abs_non_diagonal:
+                print(diagonal_value, '<', sum_of_abs_non_diagonal)
+                return False
+        return True
     
+    def check_convergence_f(self):
+        suma = math.sqrt(sum(value**2 for value in self.matrix.values()))
+        return suma < 1
     
+    def check_convergence_w(self):
+        max_row_sum = 0
+        for i in range(self.size()[0]):
+            row_sum = sum(abs(self.get_value(i, j)) for j in range(self.size()[1]))
+            if row_sum > max_row_sum:
+                max_row_sum = row_sum
+        return max_row_sum < 1
+    
+    def check_convergence_k(self):
+        max_col_sum = 0
+        for j in range(self.size()[1]): 
+            col_sum = sum(abs(self.get_value(i, j)) for i in range(self.size()[0]))
+            if col_sum > max_col_sum:
+                max_col_sum = col_sum
+                
+        return max_col_sum < 1
+
