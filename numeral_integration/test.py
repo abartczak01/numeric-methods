@@ -18,17 +18,36 @@ def func_sine(x):
 def len_circle(x):
     return 4/np.sqrt(1-x**2)
 
-# 
-# def len_ellipse(a, b, c):
-#     return 4*a*
-def len_ellipse(a, b, x):
-    return np.sqrt(1+4*(b**2)*(x**2)/((a**4)-(a**2)*(x**2)))
+def ellipse_derivative_squared(a, b, x):
+    return np.divide(b**2 * x ** 2, a**4 - a**2 * x ** 2, where=np.abs(x) != a)
+
+# def len_ellipse(a, b, x):
+#     return 2 * np.sqrt(1 + b**2 * x**2/(a**4 - a**2 * x**2))
+
+def ellipse_circumference(a, b):
+    # Ramanujan's approximation for the circumference of an ellipse
+    h = ((a - b)**2) / ((a + b)**2)
+    circumference = np.pi * (a + b) * (1 + (3*h) / (10 + np.sqrt(4 - 3*h)))
+    return circumference
+
+
+def len_ellipse2(a, b, x):
+    return 2 * np.sqrt(1 + ellipse_derivative_squared(a, b, x))
 
 # https://math.stackexchange.com/questions/45089/what-is-the-length-of-a-sine-wave-from-0-to-2-pi
 def len_sine(x):
     return np.sqrt(1+(np.cos(x))**2)
 
 
+a = 2
+b = 1
+n = 100000
+x = 2
+
+I_mid_len_ellipse = a4_spline_interpolation2(-a, a, n, lambda x: len_ellipse2(a, b, x))
+print(I_mid_len_ellipse, "spline")
+# I_mid_len_ellipse = a1_riemann(-a, a, n, lambda x: len_ellipse2(a, b, x))
+# print(I_mid_len_ellipse, "riemann")
 
 
 a_circle, b_circle = -1, 1
@@ -67,10 +86,10 @@ exact_parabola = b_parabola**3/3
 
 # Pole elipsy dla kilku półosi s3 
 
-I_mid_ellipse = a1_riemann(-a_ellipse, a_ellipse, n, lambda x: func_ellipse(a_ellipse, b_ellipse, x))
-I_trap_ellipse = a2_trapezoid(-a_ellipse, a_ellipse, n, lambda x: func_ellipse(a_ellipse, b_ellipse, x))
-I_simp_ellipse = a3_simpson(-a_ellipse, a_ellipse, n, lambda x: func_ellipse(a_ellipse, b_ellipse, x))
-I_spline_ellipse = a4_spline_interpolation(-a_ellipse, a_ellipse, n, lambda x: func_ellipse(a_ellipse, b_ellipse, x))
+# I_mid_ellipse = a1_riemann(-a_ellipse, a_ellipse, n, lambda x: func_ellipse(a_ellipse, b_ellipse, x))
+# I_trap_ellipse = a2_trapezoid(-a_ellipse, a_ellipse, n, lambda x: func_ellipse(a_ellipse, b_ellipse, x))
+# I_simp_ellipse = a3_simpson(-a_ellipse, a_ellipse, n, lambda x: func_ellipse(a_ellipse, b_ellipse, x))
+# I_spline_ellipse = a4_spline_interpolation(-a_ellipse, a_ellipse, n, lambda x: func_ellipse(a_ellipse, b_ellipse, x))
 
 # # Pole pod wykresem sinus s4
 # I_mid_sine = a1_riemann(a_sine, b_sine, n, func_sine)
@@ -105,8 +124,8 @@ I_spline_ellipse = a4_spline_interpolation(-a_ellipse, a_ellipse, n, lambda x: f
 
 # l1 - l3
 
-a_circle, b_circle = -np.sqrt(2)/2, np.sqrt(2)/2
-a_sine, b_sine = 0, 2 * np.pi
+# a_circle, b_circle = -np.sqrt(2)/2, np.sqrt(2)/2
+# a_sine, b_sine = 0, 2 * np.pi
 # I_mid_len_circle = a1_riemann(a_circle, b_circle, n, len_circle)
 # I_trap_len_circle = a2_trapezoid(a_circle, b_circle, n, len_circle)
 # I_simp_len_circle = a3_simpson(a_circle, b_circle, n, len_circle)

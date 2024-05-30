@@ -1,6 +1,8 @@
 import numpy as np
 from scipy.interpolate import interp1d, CubicSpline
 import matplotlib.pyplot as plt
+from scipy.sparse import csr_array
+from scipy.sparse.linalg import spsolve
 
 def plot_riemann(x, func):
     plt.plot(x, func(x), 'ro')
@@ -59,7 +61,7 @@ def a1_riemann(a, b, n, func, toPlot=False):
     return I_mid
 
 def a2_trapezoid(a, b, n, func, toPlot=False):
-    h = (b - a) / (n)
+    h = (b - a) / n
     x = np.linspace(a, b, n + 1)
     f = func(x)
     I_trap = (h / 2) * (f[0] + 2 * sum(f[1:n]) + f[n])
@@ -85,45 +87,51 @@ def a3_simpson(a, b, n, func, toPlot=False):
     
     return I_simp
 
+
 def a4_spline_interpolation(a_beg, b_fin, n, func, toPlot=False):
-    # Obliczamy kroki w przedziale [a, b]
     x = np.linspace(a_beg, b_fin, n + 1)
     y = func(x)
+    h = (b_fin - a_beg) / n
 
-    # Obliczamy długości segmentów
-    h = np.diff(x)
-    
-    # Tworzymy macierz i wektor dla układu równań
-    A = np.zeros((n+1, n+1))
     B = np.zeros(n+1)
-    
+
     # Wypełniamy macierz A i wektor B zgodnie z warunkami brzegowymi
-    A[0, 0] = 1
-    A[n, n] = 1
+    row = [0, n]
+    col = [0, n]
+    data = [1, 1]
+
     for i in range(1, n):
-        A[i, i-1] = h[i-1]
-        A[i, i] = 2 * (h[i-1] + h[i])
-        A[i, i+1] = h[i]
-        B[i] = 3 * ((y[i+1] - y[i]) / h[i] - (y[i] - y[i-1]) / h[i-1])
+        row.append(i)
+        col.append(i)
+        data.append(4 * h)
+
+        row.append(i)
+        col.append(i - 1)
+        data.append(h)
+
+        row.append(i)
+        col.append(i + 1)
+        data.append(h)
+        B[i] = 3 * ((y[i+1] - y[i]) / h - (y[i] - y[i-1]) / h)
     
+    A = csr_array((data, (row, col)))
     # Rozwiązujemy układ równań
-    c = np.linalg.solve(A, B)
+    c = spsolve(A, B)
     
     # Obliczamy współczynniki b i d
     b = np.zeros(n)
     d = np.zeros(n)
     for i in range(n):
-        b[i] = (y[i+1] - y[i]) / h[i] - h[i] * (2 * c[i] + c[i+1]) / 3
-        d[i] = (c[i+1] - c[i]) / (3 * h[i])
-    
-    # Obliczamy pole pod wykresem
+        b[i] = (y[i+1] - y[i]) / h - h * (2 * c[i] + c[i+1]) / 3
+        d[i] = (c[i+1] - c[i]) / (3 * h)
+
     total_area = 0
     for i in range(n):
         a_i = y[i]
         b_i = b[i]
         c_i = c[i]
         d_i = d[i]
-        h_i = h[i]
+        h_i = h
         
         integral = (
             a_i * h_i +
@@ -131,9 +139,10 @@ def a4_spline_interpolation(a_beg, b_fin, n, func, toPlot=False):
             c_i * h_i**3 / 3 +
             d_i * h_i**4 / 4
         )
+        print("++++++", integral)
         total_area += integral
     
-    # print(f"Całkowite pole pod wykresem: {total_area}")
+    print(f"Całkowite pole pod wykresem: {total_area}")
     
     # for i in range(n):
     #     print(f"Przedział [{x[i]}, {x[i+1]}]:")
