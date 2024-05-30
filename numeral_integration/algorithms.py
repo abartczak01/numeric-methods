@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.interpolate import interp1d, CubicSpline
 import matplotlib.pyplot as plt
-from scipy.sparse import csr_array
+from scipy.sparse import csr_array, csr_matrix
 from scipy.sparse.linalg import spsolve
 
 def plot_riemann(x, func):
@@ -80,8 +80,9 @@ def a3_simpson(a, b, n, func, toPlot=False):
     x = np.linspace(a, b, n + 1)
     f = func(x)
 
-    I_simp = (h / 3) * (f[0] + 2 * sum(f[2:n-2:2]) + 4 * sum(f[1:n:2]) + f[n])
-    
+    I_simp = (h / 3) * (f[0] + 2 * sum(f[2:n-1:2]) + 4 * sum(f[1:n:2]) + f[n])
+    # print("========= nowe", I_simp)
+
     if toPlot:
         plot_simpson(x, func)
     
@@ -94,7 +95,6 @@ def a4_spline_interpolation(a_beg, b_fin, n, func, toPlot=False):
     h = (b_fin - a_beg) / n
 
     B = np.zeros(n+1)
-
     # Wypełniamy macierz A i wektor B zgodnie z warunkami brzegowymi
     row = [0, n]
     col = [0, n]
@@ -139,10 +139,10 @@ def a4_spline_interpolation(a_beg, b_fin, n, func, toPlot=False):
             c_i * h_i**3 / 3 +
             d_i * h_i**4 / 4
         )
-        print("++++++", integral)
+        # print("++++++", integral)
         total_area += integral
     
-    print(f"Całkowite pole pod wykresem: {total_area}")
+    # print(f"Całkowite pole pod wykresem: {total_area}")
     
     # for i in range(n):
     #     print(f"Przedział [{x[i]}, {x[i+1]}]:")
