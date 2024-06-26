@@ -248,4 +248,11 @@ def monte_carlo_matrix():
 # H2_test2()
 # H3_test1()
 # H3_test1_plot()
-monte_carlo_matrix()
+# monte_carlo_matrix()
+# wziąć pod uwagę strukture danych (nie mnożyć przez 0)
+# zaimplementować metodę Gaussa-Seidela
+# monte carlo na innych macierzach
+
+graph = ParkGraph.generate_random_graph(5, 1, 1, (1,2), 10)
+matrix, vector = graph.create_matrix_form()
+matrix.display()
